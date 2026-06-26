@@ -164,3 +164,87 @@ The project is becoming thin if:
 The fix is usually:
 
 add a scene, not an explanation.
+
+## Cross-Chapter Heatmap
+
+Use this trilinear tracking system to expose middle sag before drafting. After outlining or revising, build a heatmap table: each chapter gets three scores (1–10), plus a combined load score. A healthy chapter carries at least two hot lines. When all three lines dip below 4 simultaneously across two or more consecutive chapters, the structure has a sag zone — fix it before writing, not after.
+
+### Trilinear Heatmap Schema
+
+Each chapter records:
+
+| field | what it measures | how to score (1–10) |
+|---|---|---|
+| `suspense_temp` | how strongly does this chapter advance the mystery? evidence discovered, access gained/lost, timeline tightened, procedural contradiction, reveal or bait-and-switch, delayed return of an old clue | 1 = no evidence movement, 10 = major reveal or irreversible escalation |
+| `relationship_load` | how deeply does a relationship change in this chapter? trust broken/rebuilt, power shifted, intimacy weaponized, a character's pressure system forces another to react, a past scene reframes a present bond | 1 = everyone stays in their emotional lane, 10 = a relationship crosses a line it cannot uncross |
+| `body_load` | how much does the body register in this chapter? sensation, wound, gesture, medical trace, object contact, environmental pressure, a body clue returns with different meaning, bodily memory disrupts the present | 1 = no physical trace, 10 = a body node becomes irreversible evidence or collapses a prior reading |
+
+### Combined Load Score
+
+```
+combined_load = round((suspense_temp × 0.40 + relationship_load × 0.35 + body_load × 0.25), 1)
+```
+
+Weights descend because suspense is the genre engine, relationship is the emotional engine, and body is the sensory engine. Adjust for specific projects.
+
+### Heatmap Table Template
+
+```
+| ch | title | s_temp | r_load | b_load | comb | viewpoint | notes |
+|----|-------|--------|--------|--------|------|-----------|-------|
+| 01 |       |        |        |        |      |           |       |
+| 02 |       |        |        |        |      |           |       |
+...
+```
+
+### Sag Detection Rules
+
+A chapter is underloaded when:
+
+- `combined_load < 3.5`
+- or `suspense_temp < 3 AND relationship_load < 3`
+
+A sag zone is:
+
+- two or more consecutive chapters with `combined_load < 4.0`
+- or three consecutive chapters where `suspense_temp < 4` (evidence starvation)
+
+A false peak is:
+
+- `suspense_temp ≥ 8` but `relationship_load ≤ 3` and `body_load ≤ 3`
+- means the chapter reveals evidence without emotional or sensory weight — reads like a report, not a scene
+
+A false peak cluster (two consecutive false peaks) is worse than a sag zone: it trains the reader that reveals are hollow.
+
+### Act-Level Health Check
+
+After scoring the full heatmap, compute act averages:
+
+```
+Act One (installments 1–6 or 7): avg suspense ≥ 5.0, avg relationship ≥ 5.5, avg body ≥ 4.5
+Act Two (installments 7/8–16/18): avg suspense ≥ 5.5, avg relationship ≥ 5.0, avg body ≥ 5.0
+Act Three (final 4–6 installments): avg suspense ≥ 6.0, avg body ≥ 5.5
+```
+
+Act Two typically dips 1–2 points across all lines — the sag is structural, not a sign of failure. But the dip must not exceed two consecutive sag-zone chapters without a spike.
+
+### Heatmap-Driven Revision
+
+When the heatmap flags a problem, add a specific scene type rather than padding:
+
+- `suspense_temp` too low: add a procedural detection scene, an evidence-source contradiction, a timeline tightening, or a clue return with new context
+- `relationship_load` too low: add a care scene that becomes control, a confrontation with delayed response, a shared memory that reframes current trust, or a truth-demand that feels like pressure
+- `body_load` too low: add a body trace (scar, gesture, posture, breath change), a medical or forensic detail, a body-object contact, or a returning bodily memory
+- `combined_load` too low across two+ lines: add a scene that forces all three to move simultaneously — e.g. a medical examination that reveals a wound (body), contradicts a prior statement (suspense), and exposes who controls the patient's narrative (relationship)
+
+### Agent Automation
+
+When building a Claude Code agent around this skill, the agent should:
+
+1. After outline or draft, auto-generate a heatmap CSV at `project/heatmap.csv`
+2. Flag every sag zone, false peak, and false peak cluster in the output
+3. Before writing each chapter, read the heatmap row for the current chapter and the two adjacent chapters
+4. After completing a chapter, score the actual chapter against the planned heatmap row: if actual deviates by ≥3 points on any line, note the drift and decide whether to revise the chapter or update the heatmap
+5. At act boundaries, run the act-level health check and report underloaded acts
+
+Do not let the heatmap override intuition. A chapter that breaks all rules but reads perfectly is correct. The heatmap only flags structural risk before writing, so the writer can choose to add a scene rather than discover sag after 15 chapters.
