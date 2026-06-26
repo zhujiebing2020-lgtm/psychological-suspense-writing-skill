@@ -1,0 +1,7 @@
+interface:
+  display_name: "Psychological Suspense Writing"
+  short_description: "Builds layered psychological suspense fiction"
+  default_prompt: "Use $psychological-suspense-writing to outline, draft, or revise a psychological suspense chapter with body clues, relationship pressure, and a clean hook."
+
+policy:
+  allow_implicit_invocation: true
